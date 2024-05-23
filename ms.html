@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kişisel Web Sayfam</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5; /* Açık gri tonu */
+            color: #333; /* Siyah veya koyu gri tonu */
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff; /* Mavi tonları */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: left;
+        }
+        th:last-child, td:last-child {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            margin-right: 10px;
+            padding: 7px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #007bff; /* Mavi tonları */
+            color: white;
+            padding: 7px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3; /* Daha koyu mavi tonları */
+        }
+        .sil-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .sil-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kişisel Web Sayfam</h1>
+
+        <table id="kisiler">
+            <thead>
+                <tr>
+                    <th>İsim</th>
+                    <th>Soyisim</th>
+                    <th>Yaş</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Yerel depolamadan yüklenen kişiler buraya eklenecek -->
+            </tbody>
+        </table>
+
+        <form id="kisiFormu">
+            <input type="text" id="ad" placeholder="Ad" required>
+            <input type="text" id="soyad" placeholder="Soyad" required>
+            <input type="number" id="yas" placeholder="Yaş" required>
+            <input type="submit" value="Ekle">
+        </form>
+    </div>
+
+    <script>
+        // Kaydedilmiş kişileri yerel depodan yükle
+        var kaydedilmisKisiler = JSON.parse(localStorage.getItem("kisiler")) || [];
+
+        // Kaydedilmiş kişileri tabloya ekle
+        function kisileriEkle() {
+            var tablo = document.getElementById("kisiler").getElementsByTagName('tbody')[0];
+            tablo.innerHTML = "";
+            kaydedilmisKisiler.forEach(function(kisi, index) {
+                var satir = tablo.insertRow();
+                var hucre1 = satir.insertCell(0);
+                var hucre2 = satir.insertCell(1);
+                var hucre3 = satir.insertCell(2);
+                var hucre4 = satir.insertCell(3);
+                hucre1.innerHTML = kisi.ad;
+                hucre2.innerHTML = kisi.soyad;
+                hucre3.innerHTML = kisi.yas;
+                var silBtn = document.createElement("button");
+                silBtn.innerText = "Sil";
+                silBtn.className = "sil-btn";
+                silBtn.addEventListener("click", function() {
+                    kisiyiSil(index);
+                });
+                hucre4.appendChild(silBtn);
+            });
+        }
+        kisileriEkle();
+
+        // Formu dinle ve verileri tabloya ekle
+        document.getElementById("kisiFormu").addEventListener("submit", function(event) {
+            event.preventDefault(); // Formun sayfayı yeniden yüklemesini engelle
+
+            // Formdaki değerleri al
+            var ad = document.getElementById("ad").value;
+            var soyad = document.getElementById("soyad").value;
+            var yas = document.getElementById("yas").value;
+
+            // Tabloya yeni satır ekle
+            var tablo = document.getElementById("kisiler").getElementsByTagName('tbody')[0];
+            var satir = tablo.insertRow();
+            var hucre1 = satir.insertCell(0);
+            var hucre2 = satir.insertCell(1);
+            var hucre3 = satir.insertCell(2);
+            var hucre4 = satir.insertCell(3);
+            hucre1.innerHTML = ad;
+            hucre2.innerHTML = soyad;
+            hucre3.innerHTML = yas;
+            var silBtn = document.createElement("button");
+            silBtn.innerText = "Sil";
+            silBtn.className = "sil-btn";
+            silBtn.addEventListener("click", function() {
+                kisiyiSil(tablo.rows.length - 1); // Satırın sıra numaras
+                });
+                hucre4.appendChild(silBtn);
+
+                // Yeni kişiyi kaydet
+                kaydedilmisKisiler.push({ ad: ad, soyad: soyad, yas: yas });
+                localStorage.setItem("kisiler", JSON.stringify(kaydedilmisKisiler));
+
+                // Formu temizle
+                document.getElementById("kisiFormu").reset();
+            });
+
+        // Kişiyi silme işlevi
+        function kisiyiSil(index) {
+            kaydedilmisKisiler.splice(index, 1);
+            localStorage.setItem("kisiler", JSON.stringify(kaydedilmisKisiler));
+            kisileriEkle(); // Tabloyu güncelle
+        }
+    </script>
+</body>
+</html>
